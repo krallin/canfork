@@ -17,9 +17,9 @@ class TestMemoryMapParser(unittest.TestCase):
             self.assertEqual(vmas[1]["Size"], 4)
             self.assertEqual(vmas[3]["Size"], 134217728)
 
-            self.assertNotIn("ac", vmas[0]["VmFlags"])
-            self.assertIn("ac", vmas[1]["VmFlags"])
-            self.assertNotIn("ac", vmas[3]["VmFlags"])
+            self.assertFalse("ac" in vmas[0]["VmFlags"])
+            self.assertTrue("ac" in vmas[1]["VmFlags"])
+            self.assertFalse("ac" in vmas[3]["VmFlags"])
 
     def test_parse_invalid_memory_map(self):
         with open(os.path.join(TEST_RESOURCES, "meminfo")) as f:
