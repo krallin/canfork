@@ -3,7 +3,7 @@ import re
 
 __author__ = 'Thomas Orozco'
 __email__ = 'thomas@orozco.fr'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 
 KERN_INFO_LINE_REGEXP = re.compile(r"([\w()]+):\W+(.+)")
