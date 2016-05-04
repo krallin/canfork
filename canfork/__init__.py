@@ -78,6 +78,8 @@ def max_accounted_vma_size(vmas):
 
 def main():
     import sys
+    import mmap
+
     if len(sys.argv) != 2:
         print("usage: {0} PID".format(sys.argv[0]))
         sys.exit(2)
@@ -90,11 +92,31 @@ def main():
 
     max_vma = max_accounted_vma_size(vmas)
     mem_free = meminfo["MemFree"]
-    ret = int(max_vma > mem_free)
 
-    print("MaxVma:  {0} kB".format(max_vma))
-    print("MemFree: {0} kB".format(mem_free))
-    print("Status:  {0}".format(ret))
+    # Print basic memory stats for the process and system.
+    print("MaxVma:\t{0} kB".format(max_vma))
+    print("MemFree:\t{0} kB".format(mem_free))
+
+    # While MemFree vs. MaxVma is a good estimate of whether we can fork, in
+    # practice it might not be 100% accurate or reflect actual allocation
+    # space. So, let's try to allocate some memory and see if it works. We
+    # won't actually use any of that memory, so this will just allocate some
+    # virtual memory but should not trigger e.g. the OOM killer.
+    for alloc_pct in range(100, 201, 10):
+        alloc_size_kb = int(max_vma * float(alloc_pct) / 100)
+        try:
+            m = mmap.mmap(-1, alloc_size_kb * 1024,
+                          mmap.MAP_PRIVATE | mmap.MAP_ANONYMOUS,
+                          mmap.PROT_READ | mmap.PROT_WRITE)
+            m.close()
+        except mmap.error:
+            alloc_state = "KO"
+        else:
+            alloc_state = "OK"
+        print("Alloc{0}:\t{1}".format(alloc_pct, alloc_state))
+
+    ret = int(max_vma > mem_free)
+    print("Status:\t{0}".format(ret))
     sys.exit(ret)
 
 
