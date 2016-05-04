@@ -14,7 +14,7 @@ test_requirements = []
 
 setup(
     name='canfork',
-    version='0.1.0',
+    version='0.2.0',
     description="Guess whether a process can fork depending on VSZ.",
     author="Thomas Orozco",
     author_email='thomas@orozco.fr',
